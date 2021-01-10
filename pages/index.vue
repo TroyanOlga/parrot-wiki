@@ -3,33 +3,111 @@
     <div>
       <Logo />
       <h1 class="title">parrot-wiki</h1>
-      <div v-html="data.parse.text['*']" />
+      <div v-if="!$fetchState.pending">
+        <div v-for="(section, index) in data.sections" :key="index">
+          <div v-if="section.title === ''">
+            <div v-for="(paragraph, i) in section.paragraphs" :key="i">
+              <div v-for="(sentence, j) in paragraph.sentences" :key="j">
+                {{ sentence.text }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-for="(section, index) in data.sections" :key="index">
+          <div v-if="section.title === 'True parrots'">
+            <h1>{{ section.title }}</h1>
+          </div>
+          <div v-if="section.title === 'Family Psittacidae'">
+            <h2>{{ section.title }}</h2>
+          </div>
+          <div v-if="section.title === 'Subfamily Psittacinae'">
+            <h3>{{ section.title }}</h3>
+            <div
+              v-for="(tableList, i) in section.tables"
+              :key="i"
+              class="columns is-centered is-multiline"
+            >
+              <div v-for="(table, j) in tableList" :key="j" class="column is-3">
+                <div class="card">
+                  <div class="card-image">
+                    <figure class="image is-square">
+                      <img
+                        :src="
+                          table.Picture.text !== ''
+                            ? `https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${table.Picture.text}&width=300`
+                            : require('~/assets/images/bird.png')
+                        "
+                        :alt="`${table['Common name'].text}`"
+                      />
+                    </figure>
+                  </div>
+                  <div class="content">
+                    <h3>{{ table['Common name'].text }}</h3>
+                    <p>{{ table['Scientific name'].text }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- <pre>{{ section }}</pre> -->
+          </div>
+          <div
+            v-if="section.title === 'Subfamily Arinae (neotropical parrots)'"
+          >
+            <h3>{{ section.title }}</h3>
+            <div
+              v-for="(tableList, i) in section.tables"
+              :key="i"
+              class="columns is-centered is-multiline"
+            >
+              <div v-for="(table, j) in tableList" :key="j" class="column is-3">
+                <div class="card">
+                  <div class="card-image">
+                    <figure class="image is-square">
+                      <img
+                        :src="
+                          table.Picture.text !== ''
+                            ? `https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${table.Picture.text}&width=300`
+                            : require('~/assets/images/bird.png')
+                        "
+                        :alt="`${table['Common name'].text}`"
+                      />
+                    </figure>
+                  </div>
+                  <div class="content">
+                    <h3>{{ table['Common name'].text }}</h3>
+                    <p>{{ table['Scientific name'].text }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- <pre>{{ section }}</pre> -->
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import wtf from 'wtf_wikipedia';
+
 interface Data {
-  data: Record<string, any>;
+  data: object | undefined;
 }
 
 export default Vue.extend({
   async fetch() {
-    this.data = await fetch(
-      'http://en.wikipedia.org/w/api.php?origin=*&action=parse&format=json&prop=text&section=0&page=Budgerigar'
-    ).then((res) => res.json());
-    // this.data = response.text;
+    // this.data = await fetch(
+    //   'http://en.wikipedia.org/w/api.php?origin=*&action=parse&format=json&prop=text&section=0&page=Budgerigar'
+    // ).then((res) => res.json());
+    const result = await wtf.fetch('List of parrots');
+    this.data = result?.json();
   },
   data(): Data {
     return {
-      data: {},
+      data: undefined,
     };
-  },
-  computed: {
-    article(): number {
-      return this.data.parse.text;
-    },
   },
 });
 </script>
