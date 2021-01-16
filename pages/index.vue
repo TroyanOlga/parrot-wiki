@@ -4,6 +4,7 @@
       <Logo />
       <h1 class="title">parrot-wiki</h1>
       <div v-if="!$fetchState.pending">
+        <!-- <pre>{{ list }}</pre> -->
         <div v-for="(section, index) in data.sections" :key="index">
           <div v-if="section.title === ''">
             <div v-for="(paragraph, i) in section.paragraphs" :key="i">
@@ -13,74 +14,40 @@
             </div>
           </div>
         </div>
-        <div v-for="(section, index) in data.sections" :key="index">
-          <div v-if="section.title === 'True parrots'">
-            <h1>{{ section.title }}</h1>
-          </div>
-          <div v-if="section.title === 'Family Psittacidae'">
-            <h2>{{ section.title }}</h2>
-          </div>
-          <div v-if="section.title === 'Subfamily Psittacinae'">
-            <h3>{{ section.title }}</h3>
+        <div v-for="(family, index) in list" :key="index">
+          <h1>{{ family.title }}</h1>
+          <div v-for="(subfamily, i) in family.subfamilies" :key="i">
+            <h2>{{ subfamily.title }}</h2>
             <div
-              v-for="(tableList, i) in section.tables"
-              :key="i"
+              v-for="(tableList, j) in subfamily.tables"
+              :key="j"
               class="columns is-centered is-multiline"
             >
-              <div v-for="(table, j) in tableList" :key="j" class="column is-3">
+              <div
+                v-for="(species, k) in tableList"
+                :key="k"
+                class="column is-3"
+              >
                 <div class="card">
                   <div class="card-image">
                     <figure class="image is-square">
                       <img
                         :src="
-                          table.Picture.text !== ''
-                            ? `https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${table.Picture.text}&width=300`
+                          species.Picture.text !== ''
+                            ? `https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${species.Picture.text}&width=300`
                             : require('~/assets/images/bird.png')
                         "
-                        :alt="`${table['Common name'].text}`"
+                        :alt="`${species['Common name'].text}`"
                       />
                     </figure>
                   </div>
                   <div class="content">
-                    <h3>{{ table['Common name'].text }}</h3>
-                    <p>{{ table['Scientific name'].text }}</p>
+                    <h3>{{ species['Common name'].text }}</h3>
+                    <p>{{ species['Scientific name'].text }}</p>
                   </div>
                 </div>
               </div>
             </div>
-            <!-- <pre>{{ section }}</pre> -->
-          </div>
-          <div
-            v-if="section.title === 'Subfamily Arinae (neotropical parrots)'"
-          >
-            <h3>{{ section.title }}</h3>
-            <div
-              v-for="(tableList, i) in section.tables"
-              :key="i"
-              class="columns is-centered is-multiline"
-            >
-              <div v-for="(table, j) in tableList" :key="j" class="column is-3">
-                <div class="card">
-                  <div class="card-image">
-                    <figure class="image is-square">
-                      <img
-                        :src="
-                          table.Picture.text !== ''
-                            ? `https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${table.Picture.text}&width=300`
-                            : require('~/assets/images/bird.png')
-                        "
-                        :alt="`${table['Common name'].text}`"
-                      />
-                    </figure>
-                  </div>
-                  <div class="content">
-                    <h3>{{ table['Common name'].text }}</h3>
-                    <p>{{ table['Scientific name'].text }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- <pre>{{ section }}</pre> -->
           </div>
         </div>
       </div>
@@ -93,7 +60,8 @@ import Vue from 'vue';
 import wtf from 'wtf_wikipedia';
 
 interface Data {
-  data: object | undefined;
+  data: any;
+  list: object | undefined;
 }
 
 export default Vue.extend({
@@ -103,10 +71,30 @@ export default Vue.extend({
     // ).then((res) => res.json());
     const result = await wtf.fetch('List of parrots');
     this.data = result?.json();
+    const families = this.data?.sections.filter(
+      (section: { title?: string; depth?: number }) => section.depth === 1
+    );
+    families.forEach((family) => {
+      family.subfamilies = [];
+    });
+    const indices: Number[] = [];
+    for (let i = 0; i < this.data.sections.length; i++)
+      if (this.data.sections[i].depth === 1) {
+        indices.push(i);
+      }
+    this.data.sections.forEach((section: any, index: any) => {
+      for (let j = 1; j < indices.length; j++) {
+        if (index > indices[j - 1] && index < indices[j]) {
+          families[j - 1].subfamilies.push(section);
+        }
+      }
+    });
+    this.list = families;
   },
   data(): Data {
     return {
       data: undefined,
+      list: undefined,
     };
   },
 });
