@@ -4,12 +4,19 @@
       <Logo />
       <h1 class="title">parrot-wiki</h1>
       <div v-if="!$fetchState.pending">
-        <!-- <pre>{{ list }}</pre> -->
         <div v-for="(section, index) in data.sections" :key="index">
           <div v-if="section.title === ''">
             <div v-for="(paragraph, i) in section.paragraphs" :key="i">
               <div v-for="(sentence, j) in paragraph.sentences" :key="j">
-                {{ sentence.text }}
+                <span
+                  v-for="(displayData, l) in sentence.dataForDisplay"
+                  :key="l"
+                >
+                  {{ displayData.text }}
+                  <a v-if="displayData.link" :href="displayData.url">
+                    {{ displayData.link }}
+                  </a>
+                </span>
               </div>
             </div>
           </div>
@@ -42,8 +49,20 @@
                     </figure>
                   </div>
                   <div class="content">
-                    <h3>{{ species['Common name'].text }}</h3>
-                    <p>{{ species['Scientific name'].text }}</p>
+                    <span
+                      v-for="(displayData, l) in species['Common name'].dataForDisplay"
+                      :key="l"
+                    >
+                      {{ displayData.text }}
+                      <a :href="displayData.url">{{ displayData.link }}</a>
+                    </span>
+                    <span
+                      v-for="(displayData, l) in species['Scientific name'].dataForDisplay"
+                      :key="l"
+                    >
+                      {{ displayData.text }}
+                      <a :href="displayData.url">{{ displayData.link }}</a>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -62,8 +81,16 @@ import wtf from 'wtf_wikipedia';
 interface Data {
   data: any;
   list: object | undefined;
+  test: any;
+  test2: any;
+  test3: any;
 }
 
+interface Link {
+  page: string;
+  text: string;
+  type: string;
+}
 export default Vue.extend({
   async fetch() {
     // this.data = await fetch(
@@ -74,7 +101,7 @@ export default Vue.extend({
     const families = this.data?.sections.filter(
       (section: { title?: string; depth?: number }) => section.depth === 1
     );
-    families.forEach((family) => {
+    families.forEach((family: any) => {
       family.subfamilies = [];
     });
     const indices: Number[] = [];
@@ -90,12 +117,131 @@ export default Vue.extend({
       }
     });
     this.list = families;
+    this.test = [
+      {
+        text: 'Something with a',
+        link: 'link',
+        url: 'http://www.google.com',
+      },
+      {
+        text: ', which is followed by another',
+        link: 'reference',
+        url: 'http://www.facebook.com',
+      },
+      {
+        text: null,
+        link: 'where everything is a huge link',
+        url: 'http://www.yandex.ru'
+      },
+      {
+        text: 'and also some additional text with no link',
+        link: null,
+        url: null,
+      },
+    ];
+    const test2 = [
+      {
+        title: 'Family Psittacidae',
+        depth: 1,
+        subfamilies: [
+          {
+            title: 'Subfamily Psittacinae',
+            depth: 2,
+            tables: [
+              [
+                {
+                  'Common name': {
+                    text: 'Grey parrot',
+                    links: [
+                      {
+                        type: 'internal',
+                        page: 'Grey parrot',
+                      },
+                    ],
+                  },
+                },
+              ],
+            ],
+          },
+        ],
+      },
+    ];
+
+    this.list = this.recursivelyIterate(this.list);
+    this.data.sections = this.recursivelyIterate(this.data.sections);
   },
   data(): Data {
     return {
       data: undefined,
       list: undefined,
+      test: undefined,
+      test2: undefined,
+      test3: undefined,
     };
+  },
+  methods: {
+    recursivelyIterate(array: any): any[] {
+      array.forEach((object: any) => {
+        Object.values(object).forEach((value: any) => {
+          if (value.isArray) {
+            this.recursivelyIterate(value);
+          } else if (typeof value === 'object' && value !== null) {
+            this.recursivelyIterateOverObject(value);
+          }
+        });
+      });
+      return array;
+    },
+    recursivelyIterateOverObject(object: any): void {
+      const objectAsArray: [string, any][] = Object.entries(object);
+      objectAsArray.forEach((entry: [string, any], index: number) => {
+        const key: string = entry[0];
+        const value: any = entry[1];
+        if (key === 'text') {
+          let textValue: any = value;
+          if (
+            objectAsArray[index + 1] &&
+            objectAsArray[index + 1][0] === 'links'
+          ) {
+            const links: Link[] = objectAsArray[index + 1][1];
+            object.dataForDisplay = [];
+            links.forEach((link: Link, index: number) => {
+              const linkWording: string = link.text || link.page;
+              const nextLinkWording: string =
+                links[index + 1]?.text || links[index + 1]?.page;
+              if (textValue.includes(linkWording)) {
+                object.dataForDisplay.push({
+                  text: null,
+                  link: linkWording,
+                  url: 'http://www.google.com',
+                });
+                textValue = textValue.substring(
+                  textValue.indexOf(linkWording) + linkWording.length
+                );
+                if (nextLinkWording) {
+                  const text = textValue.substring(
+                    0,
+                    textValue.indexOf(nextLinkWording)
+                  );
+                  object.dataForDisplay.push({
+                    text,
+                    link: null,
+                    url: null,
+                  });
+                  textValue = textValue.substring(
+                    textValue.indexOf(text) + text.length
+                  );
+                }
+              }
+            });
+          }
+        } else if (value?.isArray) {
+          this.recursivelyIterate(value);
+        } else if (typeof value === 'object' && value !== null) {
+          this.recursivelyIterateOverObject(value);
+        }
+      });
+    },
   },
 });
 </script>
