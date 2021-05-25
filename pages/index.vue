@@ -91,7 +91,8 @@ interface Data {
 }
 
 interface Link {
-  page: string;
+  page?: string;
+  site?: string;
   text: string;
   type: string;
 }
