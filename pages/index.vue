@@ -13,7 +13,11 @@
                   :key="l"
                 >
                   {{ displayData.text }}
-                  <a v-if="displayData.link" :href="displayData.url">
+                  <a
+                    v-if="displayData.link"
+                    :href="displayData.url"
+                    target="_blank"
+                  >
                     {{ displayData.link }}
                   </a>
                 </span>
@@ -199,21 +203,35 @@ export default Vue.extend({
         const value: any = entry[1];
         if (key === 'text') {
           let textValue: any = value;
+          object.dataForDisplay = [];
           if (
             objectAsArray[index + 1] &&
             objectAsArray[index + 1][0] === 'links'
           ) {
             const links: Link[] = objectAsArray[index + 1][1];
-            object.dataForDisplay = [];
             links.forEach((link: Link, index: number) => {
               const linkWording: string = link.text || link.page;
+              const slug: string = link.page?.split(' ').join('_');
               const nextLinkWording: string =
                 links[index + 1]?.text || links[index + 1]?.page;
               if (textValue.includes(linkWording)) {
+                if (textValue.indexOf(linkWording)) {
+                  object.dataForDisplay.push({
+                    text: textValue.substring(
+                      0,
+                      textValue.indexOf(linkWording)
+                    ),
+                    link: null,
+                    url: null,
+                  });
+                }
                 object.dataForDisplay.push({
                   text: null,
                   link: linkWording,
-                  url: 'http://www.google.com',
+                  url:
+                    link.type === 'internal'
+                      ? `https://en.wikipedia.org/wiki/${slug}`
+                      : link.site,
                 });
                 textValue = textValue.substring(
                   textValue.indexOf(linkWording) + linkWording.length
@@ -231,8 +249,20 @@ export default Vue.extend({
                   textValue = textValue.substring(
                     textValue.indexOf(text) + text.length
                   );
+                } else if (textValue.length) {
+                  object.dataForDisplay.push({
+                    text: textValue,
+                    link: null,
+                    url: null,
+                  });
                 }
               }
+            });
+          } else {
+            object.dataForDisplay.push({
+              text: textValue,
+              link: null,
+              url: null,
             });
           }
         } else if (value?.isArray) {
