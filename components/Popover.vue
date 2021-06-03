@@ -4,7 +4,7 @@
       <img :src="src" alt="" class="is-rounded" />
     </figure>
     <div v-if="!$fetchState.pending" class="popup-wording">
-      <div v-for="(paragraph, i) in firstSection.paragraphs" :key="i">
+      <div v-for="(paragraph, i) in firstSection" :key="i">
         <p
           v-for="(sentence, j) in paragraph.sentences"
           :key="j"
@@ -38,7 +38,17 @@ export default (Vue as VueConstructor<
   async fetch() {
     const result = (await wtf.fetch(this.title))?.json();
     const firstSection = (result as any)?.sections[0];
-    this.firstSection = this.recursivelyIterateOverObject(firstSection);
+    this.firstSection = this.recursivelyIterateOverObject(
+      firstSection
+    ).paragraphs;
+    if (this.firstSection.length > 1) {
+      this.firstSection.length = 1;
+    }
+    this.firstSection.forEach((paragraph: any) => {
+      if (paragraph.sentences.length > 2) {
+        paragraph.sentences.length = 2;
+      }
+    });
   },
   data() {
     return {
