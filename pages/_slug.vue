@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!$fetchState.pending">
+  <div v-if="!$fetchState.pending" class="container is-fullhd is-block">
     <div class="section">
       <div v-for="(paragraph, i) in firstSection" :key="i">
         <p
@@ -16,22 +16,20 @@
         </p>
       </div>
     </div>
-    <div v-if="list" class="section">
-      <div v-for="(tribe, index) in list" :key="index">
-        <div v-for="(gene, i) in tribe" :key="i">
-          <img
-            v-if="gene.Picture && gene.Picture.text"
-            :src="`https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${gene.Picture.text}&width=48`"
-          />
-          <p>{{ gene['Common name'].text }}</p>
-          <small>{{ gene['Scientific name'].text }}</small>
-        </div>
+    <div v-if="species.length" class="columns is-multiline">
+      <div v-for="(oneSpecies, index) in species" :key="index" class="column">
+        <img
+          v-if="oneSpecies.Picture && oneSpecies.Picture.text"
+          :src="`https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${oneSpecies.Picture.text}&width=300`"
+        />
+        <p>{{ oneSpecies['Common name'].text }}</p>
+        <small>{{ oneSpecies['Scientific name'].text }}</small>
       </div>
     </div>
-    <div v-if="species">
+    <div v-else class="section">
       <img
         v-if="species.Picture && species.Picture.text"
-        :src="`https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${species.Picture.text}&width=48`"
+        :src="`https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${species.Picture.text}&width=300`"
       />
       <p>{{ species['Common name'].text }}</p>
       <small>{{ species['Scientific name'].text }}</small>
@@ -48,15 +46,12 @@ export default (Vue as VueConstructor<
 >).extend({
   mixins: [transform],
   async fetch() {
-    const { slug, tables, species } = this.$route.params;
+    const { slug, species } = this.$route.params;
     const result = (await wtf.fetch(slug))?.json();
     const firstSection = (result as any)?.sections[0];
     this.firstSection = this.recursivelyIterateOverObject(
       firstSection
     ).paragraphs;
-    if (tables) {
-      this.list = tables;
-    }
     if (species) {
       this.species = species;
     }
@@ -64,7 +59,6 @@ export default (Vue as VueConstructor<
   data() {
     return {
       firstSection: undefined as any,
-      list: undefined as any,
       species: undefined as any,
     };
   },
