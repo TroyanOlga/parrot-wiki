@@ -60,13 +60,28 @@ export default (Vue as VueConstructor<
 <style lang="scss" scoped>
 .popup-container {
   background-color: white;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
   figure {
     display: inline-block;
+    img {
+      height: 100%;
+    }
   }
   .popup-wording {
-    display: inline-block;
+    > div {
+      height: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      flex-direction: column;
+      justify-content: center;
+      align-content: space-around;
+    }
     max-width: 25vw;
-    font-size: 0.5rem;
+    font-size: 0.7rem;
+    margin: 0 0.5rem;
   }
+
 }
 </style>

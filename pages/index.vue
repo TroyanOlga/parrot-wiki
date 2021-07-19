@@ -226,6 +226,12 @@ export default (Vue as VueConstructor<
 
 <style lang="scss">
 @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;900&display=swap');
+@mixin popover-arrow {
+  content: '';
+  width: 0px;
+  height: 0px;
+  position: absolute;
+}
 body {
   font-family: 'Work Sans', sans-serif;
   font-weight: 400;
@@ -399,5 +405,23 @@ h1.title {
 .container:not(.is-block) img.is-rounded {
   object-fit: contain;
   border-radius: 100% !important;
+}
+.popover[x-placement^='top-end']::after {
+  @include popover-arrow();
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid white;
+  border-bottom: 10px solid transparent;
+  left: 50%;
+  bottom: -20px;
+}
+.popover[x-placement^='bottom-end']::after {
+  @include popover-arrow();
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid white;
+  left: 50%;
+  top: -20px;
 }
 </style>
