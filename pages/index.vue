@@ -238,25 +238,6 @@ export default (Vue as VueConstructor<
   height: 0px;
   position: absolute;
 }
-body {
-  font-family: 'Work Sans', sans-serif;
-  font-weight: 400;
-  line-height: 1.25;
-}
-a {
-  color: inherit;
-  border-bottom: dashed 1px black;
-  &:hover {
-    border-bottom: solid 1px;
-  }
-}
-.container {
-  margin: 0 auto;
-  min-height: 100vh;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
 
 h1.title {
   font-family: 'Work Sans', sans-serif;

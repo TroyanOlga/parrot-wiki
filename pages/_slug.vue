@@ -19,9 +19,11 @@
     <div v-if="species && species.length" class="columns is-multiline">
       <div v-for="(oneSpecies, index) in species" :key="index" class="column">
         <img
-          v-if="oneSpecies.Picture && oneSpecies.Picture.text"
+          v-if="oneSpecies.Picture && oneSpecies.Picture.text !== ''"
           :src="`https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${oneSpecies.Picture.text}&width=300`"
+          @error="(event) => getDefaultImg(event)"
         />
+        <img v-else src="@/assets/images/logo.svg" alt="" />
         <p>{{ oneSpecies['Common name'].text }}</p>
         <small>{{ oneSpecies['Scientific name'].text }}</small>
       </div>
@@ -44,7 +46,6 @@ export default (Vue as VueConstructor<
     this.firstSection = this.recursivelyIterateOverObject(
       firstSection
     ).paragraphs;
-
   },
   data() {
     return {
@@ -55,6 +56,12 @@ export default (Vue as VueConstructor<
     species() {
       const { slug } = this.$route.params;
       return this.$store.getters.species(slug);
+    },
+  },
+  methods: {
+    getDefaultImg(event: Event) {
+      const imageUrl = require('@/assets/images/logo.svg');
+      (event.target! as HTMLImageElement).src = imageUrl;
     },
   },
 });
