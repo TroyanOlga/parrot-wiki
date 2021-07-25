@@ -16,7 +16,7 @@
         </p>
       </div>
     </div>
-    <div v-if="species.length" class="columns is-multiline">
+    <div v-if="species && species.length" class="columns is-multiline">
       <div v-for="(oneSpecies, index) in species" :key="index" class="column">
         <img
           v-if="oneSpecies.Picture && oneSpecies.Picture.text"
@@ -25,14 +25,6 @@
         <p>{{ oneSpecies['Common name'].text }}</p>
         <small>{{ oneSpecies['Scientific name'].text }}</small>
       </div>
-    </div>
-    <div v-else class="section">
-      <img
-        v-if="species.Picture && species.Picture.text"
-        :src="`https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${species.Picture.text}&width=300`"
-      />
-      <p>{{ species['Common name'].text }}</p>
-      <small>{{ species['Scientific name'].text }}</small>
     </div>
   </div>
 </template>
@@ -46,21 +38,24 @@ export default (Vue as VueConstructor<
 >).extend({
   mixins: [transform],
   async fetch() {
-    const { slug, species } = this.$route.params;
+    const { slug } = this.$route.params;
     const result = (await wtf.fetch(slug))?.json();
     const firstSection = (result as any)?.sections[0];
     this.firstSection = this.recursivelyIterateOverObject(
       firstSection
     ).paragraphs;
-    if (species) {
-      this.species = species;
-    }
+
   },
   data() {
     return {
       firstSection: undefined as any,
-      species: undefined as any,
     };
+  },
+  computed: {
+    species() {
+      const { slug } = this.$route.params;
+      return this.$store.getters.species(slug);
+    },
   },
 });
 </script>

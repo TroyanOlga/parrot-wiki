@@ -47,56 +47,36 @@
           <v-popover trigger="hover" placement="top-end">
             <h1 class="tooltip-target" :class="getClass(index)">
               {{ family.title.replace('Family ', '') }}
-              <span v-if="family.species">*</span>
+              <span v-if="family.disclaimer">*</span>
             </h1>
-            <small v-if="family.species">
-              This family does not contain subfamilies thus species are listed below
-            </small>
+            <small v-if="family.disclaimer"> {{ family.disclaimer }}</small>
             <Popover
               slot="popover"
               :src="imageSrc(family.title)"
               :title="family.title.replace('Family ', '')"
             />
           </v-popover>
-          <template v-if="family.subfamilies.length">
+          <template v-for="(subfamily, i) in family.subfamilies">
             <nuxt-link
-              v-for="(subfamily, i) in family.subfamilies"
+              v-if="subfamily.title"
               :key="`subfamily-${i}`"
-              :to="{
-                name: 'slug',
-                params: {
-                  species: subfamily.species,
-                  slug: subfamily.title
-                    .replace('Subfamily ', '')
-                    .replace(/\s\(.*\)/, '')
-                    .replace(/\s/g, '_')
-                    .replace(/s$/, ''),
-                },
-              }"
+              :to="subfamily.slug"
             >
               <h2 class="has-text-left">
-                {{ subfamily.title.replace('Subfamily ', '') }}
+                {{ subfamily.title }}
               </h2>
             </nuxt-link>
-          </template>
-          <template v-else>
-            <nuxt-link
-              v-for="(species, i) in family.species"
-              :key="`species-${i}`"
-              :to="{
-                name: 'slug',
-                params: {
-                  species: species,
-                  slug: species['Common name'].text
-                    .replace(/\s\(.*\)/, '')
-                    .replace(/\s/g, '_'),
-                },
-              }"
-            >
-              <h2 class="has-text-left">
-                {{ species['Common name'].text }}
-              </h2>
-            </nuxt-link>
+            <template v-else>
+              <nuxt-link
+                v-for="(species, j) in subfamily.species"
+                :key="`species-${j}`"
+                :to="species.slug"
+              >
+                <h2 class="has-text-left">
+                  {{ species['Common name'].text }}
+                </h2>
+              </nuxt-link>
+            </template>
           </template>
         </div>
       </div>
@@ -160,24 +140,57 @@ export default (Vue as VueConstructor<
     });
     this.families.forEach((family: any) => {
       if (family.subfamilies && !family.subfamilies.length) {
-        family.species = [];
-        family.tables.forEach((table: any) => {
-          table.forEach((species: any) => {
-            family.species.push(species);
-          });
-        });
+        family.disclaimer =
+          'This family does not contain subfamilies thus species are listed below';
+        family.subfamilies[0] = {
+          title: null,
+          species: [],
+        };
       }
       family.subfamilies.forEach((subfamily: any) => {
         subfamily.species = [];
-        subfamily.tables.forEach((tables: any) => {
-          tables.forEach((table: any) => {
-            subfamily.species.push(table);
+        subfamily.title = subfamily.title
+          ? subfamily.title.replace('Subfamily ', '')
+          : null;
+        subfamily.slug = subfamily.title
+          ? subfamily.title
+              .replace(/\s\(.*\)/, '')
+              .replace(/\s/g, '_')
+              .replace(/s$/, '')
+          : null;
+        if (!subfamily.tables) {
+          family.tables.forEach((table: any) => {
+            table.forEach((species: any) => {
+              subfamily.species.push(species);
+            });
           });
+          subfamily.species.forEach((oneSpecies: Record<string, any>) => {
+            oneSpecies.slug = oneSpecies['Common name'].text
+              .replace(/\s\(.*\)/, '')
+              .replace(/\s/g, '_');
+          });
+        } else {
+          subfamily.tables.forEach((tables: any) => {
+            tables.forEach((table: any) => {
+              subfamily.species.push(table);
+            });
+          });
+        }
+        Object.keys(subfamily).forEach((key) => {
+          if (key !== 'species' && key !== 'title' && key !== 'slug') {
+            delete subfamily[key];
+          }
         });
+      });
+      Object.keys(family).forEach((key) => {
+        if (key !== 'subfamilies' && key !== 'title' && key !== 'disclaimer') {
+          delete family[key];
+        }
       });
     });
     this.families = this.recursivelyIterate(this.families);
     this.data.sections = this.recursivelyIterate(this.data.sections);
+    this.$store.commit('mutateFamilies', this.families);
   },
   data(): Data {
     return {
@@ -195,29 +208,22 @@ export default (Vue as VueConstructor<
     imageSrc(title: string): string | void {
       const family = this.families.find((family) => family.title === title);
       let randomImageSrc: string | undefined = undefined;
-      if (family.subfamilies.length) {
-        family.subfamilies.forEach((subfamily: any) => {
-          if (!subfamily.tables) {
-            return;
-          }
-          subfamily.tables.forEach((table: any) => {
-            const randomSpecies =
-              table[Math.floor(Math.random() * table.length)];
-            if (!randomSpecies.Picture.text) {
-              return;
-            }
-            randomImageSrc = `https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${randomSpecies.Picture.text}&width=48`;
-          });
-        });
-      } else if (family.tables.length) {
-        family.tables.forEach((table: any) => {
-          const randomSpecies = table[Math.floor(Math.random() * table.length)];
-          if (!randomSpecies.Picture.text) {
-            return;
-          }
-          randomImageSrc = `https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${randomSpecies.Picture.text}&width=48`;
-        });
+      if (!family.subfamilies.length) {
+        return;
       }
+      family.subfamilies.forEach((subfamily: any) => {
+        if (!subfamily.species) {
+          return;
+        }
+        const randomSpecies =
+          subfamily.species[
+            Math.floor(Math.random() * subfamily.species.length)
+          ];
+        if (!randomSpecies?.Picture?.text) {
+          return;
+        }
+        randomImageSrc = `https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${randomSpecies.Picture.text}&width=48`;
+      });
       return randomImageSrc;
     },
   },
