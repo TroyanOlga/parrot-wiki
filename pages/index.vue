@@ -103,9 +103,9 @@ interface Data {
   families: any[];
 }
 
-export default (Vue as VueConstructor<
-  Vue & InstanceType<typeof transform>
->).extend({
+export default (
+  Vue as VueConstructor<Vue & InstanceType<typeof transform>>
+).extend({
   components: {
     Popover,
   },
@@ -239,15 +239,6 @@ export default (Vue as VueConstructor<
   position: absolute;
 }
 
-h1.title {
-  font-family: 'Work Sans', sans-serif;
-  display: block;
-  font-weight: 900;
-  font-size: 100px;
-  letter-spacing: 1px;
-  z-index: 1;
-}
-
 .subtitle {
   font-weight: 300;
   font-size: 42px;
@@ -265,7 +256,7 @@ h1.title {
   .column {
     border: 1px white solid;
     h1 {
-      font-size: 5.7vw;
+      font-size: 5.4vw;
       overflow-wrap: break-word;
       font-weight: bold;
       line-height: 1;
@@ -295,6 +286,11 @@ h1.title {
           transition: box-shadow 0.3s ease-in-out;
         }
       }
+    }
+    small {
+      color: black;
+      font-size: 0.7em;
+      font-weight: bold;
     }
   }
 }

@@ -10,30 +10,35 @@ export type RootState = ReturnType<typeof state>;
 
 export const getters: GetterTree<RootState, RootState> = {
   families: (state) => state.families,
-  species: (state) => (slug: string) => {
-    let species: any = null;
-    state.families.forEach((family) => {
-      let result = null;
-      const subfamily = family.subfamilies.find((subfamily: any) => {
-        if (subfamily.slug) {
-          return subfamily.slug === slug;
-        }
-        subfamily.species.forEach((oneSpecies: Record<string, any>) => {
-          if (oneSpecies.slug === slug) {
-            result = oneSpecies;
+  speciesAndTitle:
+    (state): any =>
+    (slug: string) => {
+      let species: any = null;
+      let title: string | null = null;
+      state.families.forEach((family) => {
+        let result = null;
+        const subfamily = family.subfamilies.find((subfamily: any) => {
+          if (subfamily.slug) {
+            return subfamily.slug === slug;
           }
+          subfamily.species.forEach((oneSpecies: Record<string, any>) => {
+            if (oneSpecies.slug === slug) {
+              result = oneSpecies;
+            }
+          });
         });
+        if (subfamily) {
+          species = subfamily.species;
+          title = subfamily.title;
+          return;
+        }
+        if (result) {
+          species = [result];
+          title = (result['Common name'] as Record<string, string>).text;
+        }
       });
-      if (subfamily) {
-        species = subfamily.species;
-        return;
-      }
-      if (result) {
-        species = [result];
-      }
-    });
-    return species;
-  },
+      return { species, title };
+    },
 };
 
 export const mutations: MutationTree<RootState> = {

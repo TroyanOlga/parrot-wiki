@@ -26,4 +26,12 @@ a {
   align-items: center;
   text-align: center;
 }
+h1.title {
+  font-family: 'Work Sans', sans-serif;
+  display: block;
+  font-weight: 900;
+  font-size: 100px;
+  letter-spacing: 1px;
+  z-index: 1;
+}
 </style>
