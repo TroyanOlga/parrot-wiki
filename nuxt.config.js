@@ -34,6 +34,7 @@ export default {
     '@nuxtjs/bulma',
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
+    'nuxt-fontawesome',
   ],
 
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
@@ -48,5 +49,14 @@ export default {
         },
       },
     },
+  },
+
+  fontawesome: {
+    imports: [
+      {
+        set: '@fortawesome/free-solid-svg-icons', // Solid icons
+        icons: ['faArrowLeft'],
+      },
+    ],
   },
 };

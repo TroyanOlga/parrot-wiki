@@ -53,6 +53,12 @@
         </div>
       </div>
     </client-only>
+    <nuxt-link class="button is-black" to="/">
+      <span class="icon">
+        <font-awesome-icon class="fa-lg" :icon="['fas', 'arrow-left']" />
+      </span>
+      <span>Home</span>
+    </nuxt-link>
   </div>
 </template>
 <script lang="ts">
@@ -201,5 +207,12 @@ h1.title {
     color: black;
     font-weight: 600;
   }
+}
+.button {
+  position: fixed;
+  top: 5%;
+  right: 20px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: bold;
 }
 </style>
