@@ -27,9 +27,9 @@ import Vue, { VueConstructor } from 'vue';
 import wtf from 'wtf_wikipedia';
 import transform from '../mixins/transform';
 
-export default (Vue as VueConstructor<
-  Vue & InstanceType<typeof transform>
->).extend({
+export default (
+  Vue as VueConstructor<Vue & InstanceType<typeof transform>>
+).extend({
   mixins: [transform],
   props: {
     src: { type: String, required: true },
@@ -38,9 +38,8 @@ export default (Vue as VueConstructor<
   async fetch() {
     const result = (await wtf.fetch(this.title))?.json();
     const firstSection = (result as any)?.sections[0];
-    this.firstSection = this.recursivelyIterateOverObject(
-      firstSection
-    ).paragraphs;
+    this.firstSection =
+      this.recursivelyIterateOverObject(firstSection).paragraphs;
     if (this.firstSection.length > 1) {
       this.firstSection.length = 1;
     }

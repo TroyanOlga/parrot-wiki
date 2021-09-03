@@ -37,25 +37,33 @@
         </div>
       </div>
     </div>
-    <div v-if="!$fetchState.pending" class="section">
+    <div v-if="!$fetchState.pending" class="section p-5">
       <div class="columns table is-multiline mgt-0">
         <div
           v-for="(family, index) in families"
           :key="`family-${index}`"
           class="column is-half"
         >
-          <v-popover trigger="hover" placement="top-end">
-            <h1 class="tooltip-target" :class="getClass(index)">
-              {{ family.title.replace('Family ', '') }}
-              <span v-if="family.disclaimer">*</span>
-            </h1>
-            <small v-if="family.disclaimer"> {{ family.disclaimer }}</small>
-            <Popover
-              slot="popover"
-              :src="imageSrc(family.title)"
-              :title="family.title.replace('Family ', '')"
-            />
-          </v-popover>
+          <a
+            :href="`https://en.wikipedia.org/wiki/${family.title.replace(
+              'Family ',
+              ''
+            )}`"
+            target="_blank"
+          >
+            <v-popover trigger="hover" placement="top-end">
+              <h1 class="tooltip-target" :class="getClass(index)">
+                {{ family.title.replace('Family ', '') }}
+                <span v-if="family.disclaimer">*</span>
+              </h1>
+              <small v-if="family.disclaimer"> {{ family.disclaimer }}</small>
+              <Popover
+                slot="popover"
+                :src="imageSrc(family.title)"
+                :title="family.title.replace('Family ', '')"
+              />
+            </v-popover>
+          </a>
           <template v-for="(subfamily, i) in family.subfamilies">
             <nuxt-link
               v-if="subfamily.title"

@@ -98,9 +98,22 @@ export default (
   async fetch() {
     const { slug } = this.$route.params;
     const result = (await wtf.fetch(slug))?.json();
-    const firstSection = (result as any)?.sections[0];
-    this.firstSection =
-      this.recursivelyIterateOverObject(firstSection).paragraphs;
+    let firstSection = (result as any)?.sections[0];
+    firstSection = this.recursivelyIterateOverObject(firstSection).paragraphs;
+    const lastParagpraph = firstSection[firstSection.length - 1].sentences;
+    const lastSentence = lastParagpraph[lastParagpraph.length - 1];
+    const lastPart =
+      lastSentence.dataForDisplay[lastSentence.dataForDisplay.length - 1].text;
+    if (lastPart.endsWith(':')) {
+      firstSection[firstSection.length - 1].sentences[
+        firstSection[firstSection.length - 1].sentences.length - 1
+      ].dataForDisplay[
+        firstSection[firstSection.length - 1].sentences[
+          firstSection[firstSection.length - 1].sentences.length - 1
+        ].dataForDisplay.length - 1
+      ].text = lastPart.replace(/:$/, '.');
+    }
+    this.firstSection = firstSection;
   },
   data(): Data {
     return {
