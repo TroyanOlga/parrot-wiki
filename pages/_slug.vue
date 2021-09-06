@@ -1,64 +1,75 @@
 <template>
-  <div v-if="!$fetchState.pending" class="container is-fullhd is-block">
+  <div class="container is-fullhd is-block">
     <h1 class="title has-text-white has-background-black mx-auto mb-0 mt-2">
       {{ title }}
     </h1>
-    <div class="section main-text has-text-justified p-3">
-      <div v-for="(paragraph, i) in firstSection" :key="i">
-        <p
-          v-for="(sentence, j) in paragraph.sentences"
-          :key="j"
-          class="is-inline"
-        >
-          <span v-for="(displayData, l) in sentence.dataForDisplay" :key="l">
-            {{ displayData.text }}
-            <a v-if="displayData.link" :href="displayData.url" target="_blank">
-              {{ displayData.link }}
-            </a>
-          </span>
-        </p>
-      </div>
-    </div>
-    <client-only>
-      <div class="section p-3">
-        <div
-          v-if="species && species.length"
-          class="columns is-multiline is-justify-content-space-around"
-        >
-          <div
-            v-for="(oneSpecies, index) in species"
-            :key="index"
-            class="column is-full mb-5"
+    <template v-if="!loading">
+      <div class="section main-text has-text-justified p-3">
+        <div v-for="(paragraph, i) in firstSection" :key="i">
+          <p
+            v-for="(sentence, j) in paragraph.sentences"
+            :key="j"
+            class="is-inline"
           >
-            <template
-              v-if="oneSpecies.Picture && oneSpecies.Picture.text !== ''"
-            >
-              <h3 :ref="`missingImageText-${index}`" class="is-hidden">
-                No picture available :(
-              </h3>
-              <img
-                :src="`https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${oneSpecies.Picture.text}&width=500`"
-                @error="(event) => getDefaultImg(event, index)"
-              />
-            </template>
-            <template v-else>
-              <h3>No picture available :(</h3>
-              <img src="@/assets/images/logo.svg" alt="" class="fallback-img" />
-            </template>
-            <p>
-              {{ oneSpecies['Common name'].text }}
-            </p>
-            <small>{{ oneSpecies['Scientific name'].text }}</small>
-          </div>
+            <span v-for="(displayData, l) in sentence.dataForDisplay" :key="l">
+              {{ displayData.text }}
+              <a
+                v-if="displayData.link"
+                :href="displayData.url"
+                target="_blank"
+              >
+                {{ displayData.link }}
+              </a>
+            </span>
+          </p>
         </div>
       </div>
-    </client-only>
-    <nuxt-link class="button is-black" to="/">
-      <span class="icon">
-        <font-awesome-icon class="fa-lg" :icon="['fas', 'arrow-left']" />
-      </span>
-      <span>Home</span>
-    </nuxt-link>
+      <client-only>
+        <div class="section p-3">
+          <div
+            v-if="species && species.length"
+            class="columns is-multiline is-justify-content-space-around"
+          >
+            <div
+              v-for="(oneSpecies, index) in species"
+              :key="index"
+              class="column is-full mb-5"
+            >
+              <template
+                v-if="oneSpecies.Picture && oneSpecies.Picture.text !== ''"
+              >
+                <h3 :ref="`missingImageText-${index}`" class="is-hidden">
+                  No picture available :(
+                </h3>
+                <img
+                  :src="`https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${oneSpecies.Picture.text}&width=500`"
+                  @error="(event) => getDefaultImg(event, index)"
+                />
+              </template>
+              <template v-else>
+                <h3>No picture available :(</h3>
+                <img
+                  src="@/assets/images/logo.svg"
+                  alt=""
+                  class="fallback-img"
+                />
+              </template>
+              <p>
+                {{ oneSpecies['Common name'].text }}
+              </p>
+              <small>{{ oneSpecies['Scientific name'].text }}</small>
+            </div>
+          </div>
+        </div>
+      </client-only>
+      <nuxt-link class="button is-black" to="/">
+        <span class="icon">
+          <font-awesome-icon class="fa-lg" :icon="['fas', 'arrow-left']" />
+        </span>
+        <span>Home</span>
+      </nuxt-link>
+    </template>
+    <img v-if="loading" src="@/assets/images/loader.svg" />
   </div>
 </template>
 <script lang="ts">
@@ -81,6 +92,7 @@ interface Mixins {
 
 interface Data {
   firstSection: any;
+  loading: boolean;
 }
 
 interface Methods {
@@ -96,6 +108,7 @@ export default (
 ).extend<Data, Methods, Computed, Mixins>({
   mixins: [transform],
   async fetch() {
+    this.loading = true;
     const { slug } = this.$route.params;
     const result = (await wtf.fetch(slug))?.json();
     let firstSection = (result as any)?.sections[0];
@@ -114,10 +127,12 @@ export default (
       ].text = lastPart.replace(/:$/, '.');
     }
     this.firstSection = firstSection;
+    this.loading = false;
   },
   data(): Data {
     return {
       firstSection: undefined as any,
+      loading: false,
     };
   },
   computed: {

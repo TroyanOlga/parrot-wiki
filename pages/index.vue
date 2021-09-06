@@ -6,7 +6,7 @@
           parrot-wiki
         </h1>
       </div>
-      <div v-if="!$fetchState.pending">
+      <div v-if="!loading">
         <div class="section text p-0 has-text-justified">
           <div
             v-for="(paragraph, i) in data.sections[0].paragraphs"
@@ -37,7 +37,7 @@
         </div>
       </div>
     </div>
-    <div v-if="!$fetchState.pending" class="section p-5">
+    <div v-if="!loading" class="section p-5">
       <div class="columns table is-multiline mgt-0">
         <div
           v-for="(family, index) in families"
@@ -89,7 +89,7 @@
         </div>
       </div>
     </div>
-    <p>
+    <p v-if="!loading">
       Beautiful logo by
       <a
         href="https://www.vecteezy.com/free-vector/free-vector-images-for-commercial-use"
@@ -97,6 +97,7 @@
         Free Vector Images For Commercial Use Vectors by Vecteezy
       </a>
     </p>
+    <img v-if="loading" src="@/assets/images/loader.svg" />
   </div>
 </template>
 
@@ -109,6 +110,7 @@ import transform from '../mixins/transform';
 interface Data {
   data: any;
   families: any[];
+  loading: boolean;
 }
 
 export default (
@@ -122,6 +124,7 @@ export default (
     // this.data = await fetch(
     //   'http://en.wikipedia.org/w/api.php?origin=*&action=parse&format=json&prop=text&section=0&page=Budgerigar'
     // ).then((res) => res.json());
+    this.loading = true;
     const result = await wtf.fetch('List of parrots');
     this.data = result?.json();
     this.families = this.data?.sections.filter(
@@ -199,11 +202,13 @@ export default (
     this.families = this.recursivelyIterate(this.families);
     this.data.sections = this.recursivelyIterate(this.data.sections);
     this.$store.commit('mutateFamilies', this.families);
+    this.loading = false;
   },
   data(): Data {
     return {
       data: undefined,
       families: [],
+      loading: false,
     };
   },
   methods: {
