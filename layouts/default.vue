@@ -11,6 +11,12 @@ body {
   font-family: 'Work Sans', sans-serif;
   font-weight: 400;
   line-height: 1.25;
+  .title,
+  .subtitle {
+    word-break: unset;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
 }
 a {
   color: inherit;
@@ -33,5 +39,10 @@ h1.title {
   font-size: 100px;
   letter-spacing: 1px;
   z-index: 1;
+  @media only screen and (max-width: 812px) {
+    font-size: 50px;
+    background-color: #fee473 !important;
+    color: black !important;
+  }
 }
 </style>

@@ -1,6 +1,15 @@
 <template>
   <div class="container is-fullhd is-block">
-    <h1 class="title has-text-white has-background-black mx-auto mb-0 mt-2">
+    <h1
+      class="
+        title
+        slug-title
+        has-text-white has-background-black
+        mx-auto
+        mb-0
+        mt-2
+      "
+    >
       {{ title }}
     </h1>
     <template v-if="!loading">
@@ -25,7 +34,7 @@
         </div>
       </div>
       <client-only>
-        <div class="section p-3">
+        <div class="section p-lg-3 is-relative">
           <div
             v-if="species && species.length"
             class="columns is-multiline is-justify-content-space-around"
@@ -43,6 +52,12 @@
                 </h3>
                 <img
                   :src="`https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${oneSpecies.Picture.text}&width=500`"
+                  class="is-hidden-mobile"
+                  @error="(event) => getDefaultImg(event, index)"
+                />
+                <img
+                  :src="`https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${oneSpecies.Picture.text}&width=300`"
+                  class="is-hidden-tablet"
                   @error="(event) => getDefaultImg(event, index)"
                 />
               </template>
@@ -62,9 +77,15 @@
           </div>
         </div>
       </client-only>
-      <nuxt-link class="button is-black" to="/">
+      <nuxt-link class="button is-black is-hidden-tablet" to="/">
+        <span class="icon m-0">
+          <font-awesome-icon class="fa-lg" :icon="['fas', 'home']" />
+        </span>
+      </nuxt-link>
+      <nuxt-link class="button is-black is-hidden-mobile" to="/">
         <span class="icon">
-          <font-awesome-icon class="fa-lg" :icon="['fas', 'arrow-left']" />
+          <font-awesome-icon :icon="['fas', 'home']" />
+          <i class="fas fa-chevron-left"></i>
         </span>
         <span>Home</span>
       </nuxt-link>
@@ -162,33 +183,51 @@ export default (
 });
 </script>
 <style lang="scss" scoped>
-h1.title {
+h1.title.slug-title {
   width: fit-content;
   font-size: 5em;
-}
-.section.main-text {
-  position: relative;
-  &::before {
-    content: '';
-    width: 3vw;
-    height: 25vh;
-    background-color: #fee473;
-    background-size: cover;
-    position: absolute;
-    top: -20%;
-    left: 20%;
-    z-index: -1;
+  @media only screen and (max-width: 812px) {
+    background-color: black !important;
+    color: white !important;
+    font-size: 47px;
   }
-  &::after {
-    content: '';
-    width: 25vw;
-    height: 5vh;
-    background-color: #fee473;
-    background-size: cover;
-    position: absolute;
-    top: 20%;
-    left: 70%;
-    z-index: -1;
+}
+.container {
+  @media only screen and (max-width: 812px) {
+    width: 100vw !important;
+  }
+  > * {
+    max-width: 100vw;
+  }
+}
+.section {
+  &.main-text {
+    position: relative;
+    &::before {
+      content: '';
+      width: 3vw;
+      height: 25vh;
+      background-color: #fee473;
+      background-size: cover;
+      position: absolute;
+      top: -20%;
+      left: 20%;
+      z-index: -1;
+    }
+    &::after {
+      content: '';
+      width: 25vw;
+      height: 5vh;
+      background-color: #fee473;
+      background-size: cover;
+      position: absolute;
+      top: 20%;
+      left: 70%;
+      z-index: -1;
+    }
+  }
+  &:not(.main-text) {
+    padding-bottom: 0;
   }
 }
 .column {
@@ -206,6 +245,11 @@ h1.title {
     color: black;
     min-width: 100px;
     padding: 3vh 1vh 3vh 1vh;
+    max-width: 60%;
+    @media only screen and (max-width: 812px) {
+      top: 10%;
+      right: 7%;
+    }
   }
   > small {
     position: absolute;
@@ -215,7 +259,12 @@ h1.title {
     color: black;
     font-weight: bold;
     padding: 1vh 0.5vh 1vh 0.5vh;
-    min-width: fit-content;
+    max-width: 60%;
+    @media only screen and (max-width: 812px) {
+      top: unset;
+      bottom: 10%;
+      left: 7%;
+    }
   }
   img {
     position: absolute;
@@ -242,5 +291,10 @@ h1.title {
   right: 20px;
   font-family: 'Work Sans', sans-serif;
   font-weight: bold;
+  @media only screen and (max-width: 812px) {
+    top: unset;
+    bottom: 5px;
+    right: 8px;
+  }
 }
 </style>

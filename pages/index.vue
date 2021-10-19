@@ -54,9 +54,11 @@
             <v-popover trigger="hover" placement="top-end">
               <h1 class="tooltip-target" :class="getClass(index)">
                 {{ family.title.replace('Family ', '') }}
-                <span v-if="family.disclaimer">*</span>
+                <span v-if="family.disclaimer" class="is-hidden-mobile">*</span>
               </h1>
-              <small v-if="family.disclaimer"> {{ family.disclaimer }}</small>
+              <small v-if="family.disclaimer" class="is-hidden-mobile">
+                {{ family.disclaimer }}
+              </small>
               <Popover
                 slot="popover"
                 :src="imageSrc(family.title)"
@@ -88,15 +90,15 @@
           </template>
         </div>
       </div>
+      <small v-if="!loading">
+        Beautiful logo by
+        <a
+          href="https://www.vecteezy.com/free-vector/free-vector-images-for-commercial-use"
+        >
+          Free Vector Images For Commercial Use Vectors by Vecteezy
+        </a>
+      </small>
     </div>
-    <p v-if="!loading">
-      Beautiful logo by
-      <a
-        href="https://www.vecteezy.com/free-vector/free-vector-images-for-commercial-use"
-      >
-        Free Vector Images For Commercial Use Vectors by Vecteezy
-      </a>
-    </p>
     <img v-if="loading" src="@/assets/images/loader.svg" />
   </div>
 </template>
@@ -312,18 +314,21 @@ export default (
   margin-top: -10px;
   position: relative;
   &::before {
-    content: '';
-    width: 100%;
-    height: 1px;
-    background-color: #fee473;
-    z-index: 1000;
-    position: absolute;
-    top: 0;
-    left: 0;
+    @media only screen and (min-width: 812px) {
+      content: '';
+      width: 100%;
+      height: 1px;
+      background-color: #fee473;
+      z-index: 1000;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
   }
   > div {
     width: 50%;
     position: relative;
+    color: black;
     &:first-child {
       &::before {
         content: '';
@@ -334,6 +339,13 @@ export default (
         position: absolute;
         bottom: -20%;
         left: 20%;
+        @media only screen and (max-width: 812px) {
+          background-color: #fee473;
+          bottom: 40%;
+          left: 40%;
+          width: 35vw;
+          mix-blend-mode: multiply;
+        }
       }
       &::after {
         content: '';
@@ -344,6 +356,12 @@ export default (
         position: absolute;
         top: 20%;
         left: 110%;
+        @media only screen and (max-width: 812px) {
+          background-color: #fee473;
+          left: 10%;
+          top: 0;
+          mix-blend-mode: multiply;
+        }
       }
     }
     &:last-child {
@@ -354,8 +372,30 @@ export default (
         background-color: red;
         background-size: cover;
         position: absolute;
-        top: -20%;
+        top: 0;
         left: 80%;
+        @media only screen and (max-width: 812px) {
+          mix-blend-mode: multiply;
+          width: 5vw;
+          height: 7vh;
+          width: 40%;
+          left: 15%;
+          top: 55%;
+          /* background-color: #fee473; */
+        }
+      }
+      &::after {
+        @media only screen and (max-width: 812px) {
+          content: '';
+          width: 3vw;
+          height: 50vh;
+          background-color: #fee473;
+          background-size: cover;
+          position: absolute;
+          left: 60%;
+          bottom: 55%;
+          mix-blend-mode: multiply;
+        }
       }
     }
     &.odd {
@@ -373,6 +413,14 @@ export default (
         position: absolute;
         top: 0;
         left: calc(-400px - 10%);
+        @media only screen and (max-width: 812px) {
+          left: 80%;
+          height: 10vh;
+          width: 5vw;
+          mix-blend-mode: multiply;
+          background-image: none;
+          background-color: red;
+        }
       }
       &::after {
         content: '';
@@ -383,6 +431,14 @@ export default (
         position: absolute;
         top: 30%;
         left: -20%;
+        @media only screen and (max-width: 812px) {
+          left: 0;
+          top: 25%;
+          height: 5vh;
+          width: 30%;
+          background-color: #fee473;
+          mix-blend-mode: multiply;
+        }
       }
       background-color: black;
       a {
@@ -391,11 +447,29 @@ export default (
         &:hover {
           border-bottom: solid 1px;
         }
+        @media only screen and (max-width: 812px) {
+          color: black;
+          border-bottom: dashed 1px black;
+        }
       }
       p {
         color: white;
+        @media only screen and (max-width: 812px) {
+          color: black;
+        }
+      }
+      @media only screen and (max-width: 812px) {
+        width: auto;
+        margin: 0 !important;
+        background: none;
       }
     }
+    @media only screen and (max-width: 812px) {
+      width: auto;
+    }
+  }
+  @media only screen and (max-width: 812px) {
+    background: none;
   }
 }
 .container:not(.is-block) img.is-rounded {
