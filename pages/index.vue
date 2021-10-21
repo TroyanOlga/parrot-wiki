@@ -66,37 +66,47 @@
               />
             </v-popover>
           </a>
-          <template v-for="(subfamily, i) in family.subfamilies">
-            <nuxt-link
-              v-if="subfamily.title"
-              :key="`subfamily-${i}`"
-              :to="subfamily.slug"
-            >
-              <h2 class="has-text-left">
-                {{ subfamily.title }}
-              </h2>
-            </nuxt-link>
-            <template v-else>
+          <client-only>
+            <template v-for="(subfamily, i) in family.subfamilies">
               <nuxt-link
-                v-for="(species, j) in subfamily.species"
-                :key="`species-${j}`"
-                :to="species.slug"
+                v-if="subfamily.title"
+                :key="`subfamily-${i}`"
+                :to="subfamily.slug"
               >
                 <h2 class="has-text-left">
-                  {{ species['Common name'].text }}
+                  {{ subfamily.title }}
                 </h2>
               </nuxt-link>
+              <template v-else>
+                <nuxt-link
+                  v-for="(species, j) in subfamily.species"
+                  :key="`species-${j}`"
+                  :to="species.slug"
+                >
+                  <h2 class="has-text-left">
+                    {{ species['Common name'].text }}
+                  </h2>
+                </nuxt-link>
+              </template>
             </template>
-          </template>
+          </client-only>
         </div>
       </div>
       <small v-if="!loading">
         Beautiful logo by
         <a
+          target="_blank"
           href="https://www.vecteezy.com/free-vector/free-vector-images-for-commercial-use"
         >
           Free Vector Images For Commercial Use Vectors by Vecteezy
         </a>
+      </small>
+      <small v-if="!loading" class="is-block">
+        <a target="_blank" href="https://icons8.com/icon/52245/budgie">
+          Budgie
+        </a>
+        icon by
+        <a target="_blank" href="https://icons8.com">Icons8</a>
       </small>
     </div>
     <img v-if="loading" src="@/assets/images/loader.svg" />
@@ -123,9 +133,6 @@ export default (
   },
   mixins: [transform],
   async fetch() {
-    // this.data = await fetch(
-    //   'http://en.wikipedia.org/w/api.php?origin=*&action=parse&format=json&prop=text&section=0&page=Budgerigar'
-    // ).then((res) => res.json());
     this.loading = true;
     const result = await wtf.fetch('List of parrots');
     this.data = result?.json();
@@ -246,7 +253,6 @@ export default (
 </script>
 
 <style lang="scss">
-@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;900&display=swap');
 @mixin popover-arrow {
   content: '';
   width: 0px;
@@ -374,6 +380,7 @@ export default (
         position: absolute;
         top: 0;
         left: 80%;
+        mix-blend-mode: darken;
         @media only screen and (max-width: 812px) {
           mix-blend-mode: multiply;
           width: 5vw;
@@ -381,7 +388,6 @@ export default (
           width: 40%;
           left: 15%;
           top: 55%;
-          /* background-color: #fee473; */
         }
       }
       &::after {

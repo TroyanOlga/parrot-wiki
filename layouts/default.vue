@@ -1,12 +1,17 @@
 <template>
   <div>
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;900&display=swap"
+      crossorigin="anonymous"
+      onload="this.rel='stylesheet'"
+    />
     <Nuxt />
   </div>
 </template>
 
 <style lang="scss">
-@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;900&display=swap');
-
 body {
   font-family: 'Work Sans', sans-serif;
   font-weight: 400;
