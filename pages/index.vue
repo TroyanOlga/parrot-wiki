@@ -282,6 +282,9 @@ export default (
       font-weight: bold;
       line-height: 1;
       position: relative;
+      @media only screen and (min-width: 1507px) {
+        font-size: 82px;
+      }
       &:hover {
         box-shadow: 0 -10px inset;
         transition: box-shadow 0.3s ease-in-out;

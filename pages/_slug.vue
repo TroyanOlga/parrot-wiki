@@ -13,7 +13,7 @@
       {{ title }}
     </h1>
     <template v-if="!loading">
-      <div class="section main-text has-text-justified p-3">
+      <div class="section main-text has-text-justified">
         <div v-for="(paragraph, i) in firstSection" :key="i">
           <p
             v-for="(sentence, j) in paragraph.sentences"
@@ -203,6 +203,7 @@ h1.title.slug-title {
 .section {
   &.main-text {
     position: relative;
+    padding: 1rem 1.5rem 0 1.5rem;
     &::before {
       content: '';
       width: 3vw;
@@ -283,6 +284,12 @@ h1.title.slug-title {
     line-height: 80vh;
     color: black;
     font-weight: 600;
+    @media only screen and (max-height: 667px) {
+      line-height: 75vh;
+    }
+    @media only screen and (min-height: 1023px) {
+      line-height: 85vh;
+    }
   }
 }
 .button {
